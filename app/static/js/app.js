@@ -442,8 +442,8 @@ async function loadPlatformStatus() {
         const container = document.getElementById('platformStatus');
         if (!container) return;
 
-        const platformNames = { youtube: 'YouTube', instagram: 'Instagram', facebook: 'Facebook' };
-        const platformIcons = { youtube: '&#128308;', instagram: '&#128248;', facebook: '&#128309;' };
+        const platformNames = { youtube: 'YouTube', instagram: 'Instagram', facebook: 'Facebook', tiktok: 'TikTok' };
+        const platformIcons = { youtube: '&#128308;', instagram: '&#128248;', facebook: '&#128309;', tiktok: '&#127926;' };
 
         container.innerHTML = Object.entries(platforms).map(([key, val]) => `
             <div class="platform-card" style="padding: 16px;">
@@ -519,6 +519,24 @@ async function connectFacebook() {
         showToast('Facebook berhasil dihubungkan!', 'success');
     } catch (e) {
         showToast('Gagal menghubungkan Facebook', 'error');
+    }
+}
+
+async function connectTikTok() {
+    const clientKey = document.getElementById('ttClientKey').value;
+    const clientSecret = document.getElementById('ttClientSecret').value;
+
+    if (!clientKey || !clientSecret) { showToast('Isi Client Key dan Client Secret!', 'error'); return; }
+
+    try {
+        await apiCall('/api/upload/platforms/connect', 'POST', {
+            platform: 'tiktok',
+            credentials: { client_key: clientKey, client_secret: clientSecret },
+        });
+        document.getElementById('ttStatus').innerHTML = '<span class="connected">&#9989; Terhubung</span>';
+        showToast('TikTok berhasil dihubungkan!', 'success');
+    } catch (e) {
+        showToast('Gagal menghubungkan TikTok', 'error');
     }
 }
 

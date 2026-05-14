@@ -32,6 +32,7 @@ async def init_db():
                 youtube_url TEXT DEFAULT '',
                 instagram_url TEXT DEFAULT '',
                 facebook_url TEXT DEFAULT '',
+                tiktok_url TEXT DEFAULT '',
                 created_at TEXT DEFAULT (datetime('now')),
                 updated_at TEXT DEFAULT (datetime('now'))
             );

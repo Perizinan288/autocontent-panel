@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoContent Panel - imgbb.vip</title>
+    <title>AutoContent Panel - autocontent-panel.imgbb.vip</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
 </head>
@@ -21,7 +21,7 @@
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-logo">
                 <h1>&#127916; AutoContent</h1>
-                <span>imgbb.vip - Content Automation</span>
+                <span>autocontent-panel.imgbb.vip</span>
             </div>
 
             <div class="nav-section">
@@ -154,6 +154,7 @@
                                 <option value="youtube">YouTube Shorts</option>
                                 <option value="instagram">Instagram Reels</option>
                                 <option value="facebook">Facebook Reels</option>
+                                <option value="tiktok">TikTok</option>
                             </select>
                         </div>
                     </div>
@@ -232,6 +233,7 @@
                                 <option value="youtube">YouTube</option>
                                 <option value="instagram">Instagram</option>
                                 <option value="facebook">Facebook</option>
+                                <option value="tiktok">TikTok</option>
                             </select>
                         </div>
                     </div>
@@ -300,10 +302,11 @@
                     <div class="form-group">
                         <label>Platform Tujuan</label>
                         <select class="form-control" id="uploadPlatformSelect">
-                            <option value="all">Semua Platform (YouTube + IG + FB)</option>
+                            <option value="all">Semua Platform (YouTube + IG + FB + TikTok)</option>
                             <option value="youtube">YouTube saja</option>
                             <option value="instagram">Instagram saja</option>
                             <option value="facebook">Facebook saja</option>
+                            <option value="tiktok">TikTok saja</option>
                         </select>
                     </div>
                     <button class="btn btn-success" onclick="uploadContent()">&#128640; Upload Sekarang</button>
@@ -396,6 +399,22 @@
                         <button class="btn btn-primary" onclick="connectFacebook()">Hubungkan Facebook</button>
                         <div class="status" id="fbStatus"></div>
                     </div>
+
+                    <div class="platform-card">
+                        <div class="icon">&#127926;</div>
+                        <h4>TikTok</h4>
+                        <p>Upload video otomatis ke TikTok</p>
+                        <div class="form-group">
+                            <label>Client Key</label>
+                            <input type="text" class="form-control" id="ttClientKey" placeholder="TikTok App Client Key">
+                        </div>
+                        <div class="form-group">
+                            <label>Client Secret</label>
+                            <input type="password" class="form-control" id="ttClientSecret" placeholder="TikTok App Client Secret">
+                        </div>
+                        <button class="btn btn-primary" onclick="connectTikTok()">Hubungkan TikTok</button>
+                        <div class="status" id="ttStatus"></div>
+                    </div>
                 </div>
             </section>
 
@@ -449,6 +468,7 @@
                         <option value="youtube">YouTube</option>
                         <option value="instagram">Instagram</option>
                         <option value="facebook">Facebook</option>
+                        <option value="tiktok">TikTok</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -481,6 +501,7 @@
                     <option value="youtube">YouTube</option>
                     <option value="instagram">Instagram</option>
                     <option value="facebook">Facebook</option>
+                    <option value="tiktok">TikTok</option>
                 </select>
             </div>
             <div class="form-group">
@@ -518,6 +539,7 @@
                         <option value="youtube">YouTube</option>
                         <option value="instagram">Instagram</option>
                         <option value="facebook">Facebook</option>
+                        <option value="tiktok">TikTok</option>
                     </select>
                 </div>
                 <div class="form-group">

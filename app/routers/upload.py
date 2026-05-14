@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.config import settings
 from app.database import get_db
 from app.models import PlatformCredentials
-from app.services import facebook, instagram, youtube
+from app.services import facebook, instagram, tiktok, youtube
 
 router = APIRouter(prefix="/api/upload", tags=["upload"])
 
@@ -134,6 +134,40 @@ async def upload_to_facebook(content_id: int, db: aiosqlite.Connection = Depends
     return result
 
 
+@router.post("/tiktok/{content_id}")
+async def upload_to_tiktok(content_id: int, db: aiosqlite.Connection = Depends(get_db)):
+    cursor = await db.execute("SELECT * FROM contents WHERE id = ?", (content_id,))
+    content = await cursor.fetchone()
+    if not content:
+        raise HTTPException(status_code=404, detail="Content not found")
+
+    cred_cursor = await db.execute(
+        "SELECT credentials FROM platform_credentials WHERE platform = 'tiktok' AND is_connected = 1"
+    )
+    cred_row = await cred_cursor.fetchone()
+    if not cred_row:
+        raise HTTPException(status_code=400, detail="TikTok not connected")
+
+    creds = json.loads(cred_row["credentials"])
+
+    result = await tiktok.upload_video(
+        access_token=creds["access_token"],
+        file_path=content["file_path"],
+        title=content["title"],
+        description=f"{content['caption']}\n\n{content['hashtags']}" if content['hashtags'] else content['caption'],
+    )
+
+    if result.get("error"):
+        raise HTTPException(status_code=500, detail=result["error"])
+
+    await db.execute(
+        "UPDATE contents SET tiktok_url = ?, status = 'published', published_at = datetime('now') WHERE id = ?",
+        (str(result.get("publish_id", "")), content_id),
+    )
+    await db.commit()
+    return result
+
+
 @router.post("/all/{content_id}")
 async def upload_to_all(content_id: int, db: aiosqlite.Connection = Depends(get_db)):
     results = {}
@@ -154,6 +188,11 @@ async def upload_to_all(content_id: int, db: aiosqlite.Connection = Depends(get_
     except HTTPException as e:
         errors.append({"platform": "facebook", "error": e.detail})
 
+    try:
+        results["tiktok"] = await upload_to_tiktok(content_id, db=db)
+    except HTTPException as e:
+        errors.append({"platform": "tiktok", "error": e.detail})
+
     return {"results": results, "errors": errors}
 
 
@@ -163,7 +202,7 @@ async def list_platforms(db: aiosqlite.Connection = Depends(get_db)):
     rows = await cursor.fetchall()
     platforms = {row["platform"]: {"connected": bool(row["is_connected"]), "updated_at": row["updated_at"]} for row in rows}
 
-    for p in ["youtube", "instagram", "facebook"]:
+    for p in ["youtube", "instagram", "facebook", "tiktok"]:
         if p not in platforms:
             platforms[p] = {"connected": False, "updated_at": None}
 

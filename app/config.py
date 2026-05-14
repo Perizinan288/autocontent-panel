@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     FACEBOOK_PAGE_ACCESS_TOKEN: str = ""
     FACEBOOK_PAGE_ID: str = ""
 
+    TIKTOK_CLIENT_KEY: str = ""
+    TIKTOK_CLIENT_SECRET: str = ""
+    TIKTOK_REDIRECT_URI: str = "http://localhost:8000/api/auth/tiktok/callback"
+
     UPLOAD_DIR: str = "./uploads"
     CLIPS_DIR: str = "./clips"
     MAX_UPLOAD_SIZE_MB: int = 500
