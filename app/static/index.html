@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoContent Panel - imgbb.vip</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+</head>
+<body>
+    <div class="toast-container" id="toastContainer"></div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p id="loadingText">Loading...</p>
+    </div>
+
+    <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <h1>&#127916; AutoContent</h1>
+                <span>imgbb.vip - Content Automation</span>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Menu</div>
+                <a class="nav-item active" onclick="showPage('dashboard')" data-page="dashboard">
+                    <span class="icon">&#128202;</span> Dashboard
+                </a>
+                <a class="nav-item" onclick="showPage('generate')" data-page="generate">
+                    <span class="icon">&#9889;</span> Generate Konten
+                </a>
+                <a class="nav-item" onclick="showPage('contents')" data-page="contents">
+                    <span class="icon">&#128196;</span> Daftar Konten
+                </a>
+                <a class="nav-item" onclick="showPage('clipper')" data-page="clipper">
+                    <span class="icon">&#127910;</span> Video Clipper
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Distribusi</div>
+                <a class="nav-item" onclick="showPage('upload')" data-page="upload">
+                    <span class="icon">&#128228;</span> Upload & Publish
+                </a>
+                <a class="nav-item" onclick="showPage('schedule')" data-page="schedule">
+                    <span class="icon">&#128197;</span> Jadwal Posting
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Settings</div>
+                <a class="nav-item" onclick="showPage('platforms')" data-page="platforms">
+                    <span class="icon">&#128279;</span> Koneksi Platform
+                </a>
+                <a class="nav-item" onclick="showPage('templates')" data-page="templates">
+                    <span class="icon">&#128221;</span> Template
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Dashboard Page -->
+            <section class="page-section active" id="page-dashboard">
+                <div class="page-header">
+                    <h2>&#128202; Dashboard</h2>
+                    <button class="btn btn-primary" onclick="showPage('generate')">&#9889; Generate Konten Baru</button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon red">&#128196;</div>
+                        <div class="stat-info">
+                            <h3 id="stat-total">0</h3>
+                            <p>Total Konten</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">&#128077;</div>
+                        <div class="stat-info">
+                            <h3 id="stat-published">0</h3>
+                            <p>Sudah Diupload</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon yellow">&#128338;</div>
+                        <div class="stat-info">
+                            <h3 id="stat-scheduled">0</h3>
+                            <p>Terjadwal</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">&#9999;</div>
+                        <div class="stat-info">
+                            <h3 id="stat-draft">0</h3>
+                            <p>Draft</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Konten Terbaru</h3>
+                        <button class="btn btn-sm btn-secondary" onclick="showPage('contents')">Lihat Semua</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Judul</th>
+                                    <th>Platform</th>
+                                    <th>Status</th>
+                                    <th>Tanggal</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentContentsTable">
+                                <tr><td colspan="5" class="empty-state"><p>Belum ada konten. Mulai generate sekarang!</p></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>&#128279; Status Platform</h3>
+                    </div>
+                    <div class="platform-grid" id="platformStatus">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Generate Content Page -->
+            <section class="page-section" id="page-generate">
+                <div class="page-header">
+                    <h2>&#9889; Generate Konten AI</h2>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">Buat Konten Otomatis</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Niche / Topik</label>
+                            <input type="text" class="form-control" id="genNiche" placeholder="Contoh: teknologi, masak, gaming, bisnis...">
+                        </div>
+                        <div class="form-group">
+                            <label>Platform</label>
+                            <select class="form-control" id="genPlatform">
+                                <option value="all">Semua Platform</option>
+                                <option value="youtube">YouTube Shorts</option>
+                                <option value="instagram">Instagram Reels</option>
+                                <option value="facebook">Facebook Reels</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tipe Konten</label>
+                            <select class="form-control" id="genType">
+                                <option value="short">Short / Reels (15-60 detik)</option>
+                                <option value="long">Video Panjang (5-15 menit)</option>
+                                <option value="post">Post / Gambar</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tone</label>
+                            <select class="form-control" id="genTone">
+                                <option value="engaging">Engaging & Fun</option>
+                                <option value="educational">Edukatif</option>
+                                <option value="motivational">Motivasi</option>
+                                <option value="humorous">Humor</option>
+                                <option value="professional">Profesional</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Bahasa</label>
+                            <select class="form-control" id="genLang">
+                                <option value="id">Bahasa Indonesia</option>
+                                <option value="en">English</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Jumlah Ide</label>
+                            <select class="form-control" id="genCount">
+                                <option value="1">1 Ide</option>
+                                <option value="3" selected>3 Ide</option>
+                                <option value="5">5 Ide</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="generateContent(false)">&#9889; Generate Ide</button>
+                        <button class="btn btn-success" onclick="generateContent(true)">&#128190; Generate & Simpan</button>
+                    </div>
+                </div>
+
+                <div class="card" id="generateResults" style="display: none;">
+                    <div class="card-header">
+                        <h3>&#128161; Hasil Generate</h3>
+                        <button class="btn btn-sm btn-secondary" onclick="clearResults()">Bersihkan</button>
+                    </div>
+                    <div class="results-area" id="resultsArea"></div>
+                </div>
+            </section>
+
+            <!-- Contents List Page -->
+            <section class="page-section" id="page-contents">
+                <div class="page-header">
+                    <h2>&#128196; Daftar Konten</h2>
+                    <button class="btn btn-primary" onclick="openCreateModal()">&#10133; Tambah Konten</button>
+                </div>
+
+                <div class="card">
+                    <div class="form-row" style="margin-bottom: 16px;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <select class="form-control" id="filterStatus" onchange="loadContents()">
+                                <option value="">Semua Status</option>
+                                <option value="draft">Draft</option>
+                                <option value="scheduled">Terjadwal</option>
+                                <option value="published">Published</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <select class="form-control" id="filterPlatform" onchange="loadContents()">
+                                <option value="">Semua Platform</option>
+                                <option value="youtube">YouTube</option>
+                                <option value="instagram">Instagram</option>
+                                <option value="facebook">Facebook</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="content-grid" id="contentsList"></div>
+                </div>
+            </section>
+
+            <!-- Video Clipper Page -->
+            <section class="page-section" id="page-clipper">
+                <div class="page-header">
+                    <h2>&#127910; Video Clipper</h2>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">Upload Video Sumber</h3>
+                    <div class="form-group">
+                        <label>Pilih file video untuk dipotong menjadi clips pendek</label>
+                        <input type="file" class="form-control" id="clipSourceFile" accept="video/*">
+                    </div>
+                    <button class="btn btn-primary" onclick="uploadClipSource()">&#128228; Upload Video</button>
+
+                    <div id="videoInfo" style="display: none; margin-top: 16px;" class="result-item">
+                        <h4>Info Video</h4>
+                        <p id="videoInfoText"></p>
+                    </div>
+                </div>
+
+                <div class="card" id="clipOptions" style="display: none;">
+                    <h3 style="margin-bottom: 20px;">Opsi Clipping</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Durasi Maksimal per Clip (detik)</label>
+                            <input type="number" class="form-control" id="clipMaxDuration" value="60">
+                        </div>
+                        <div class="form-group">
+                            <label>Durasi Minimal per Clip (detik)</label>
+                            <input type="number" class="form-control" id="clipMinDuration" value="15">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="autoClipVideo()">&#9986; Auto Clip</button>
+                    </div>
+                </div>
+
+                <div class="card" id="clipResults" style="display: none;">
+                    <div class="card-header">
+                        <h3>&#127916; Hasil Clip</h3>
+                    </div>
+                    <div id="clipsArea"></div>
+                </div>
+            </section>
+
+            <!-- Upload & Publish Page -->
+            <section class="page-section" id="page-upload">
+                <div class="page-header">
+                    <h2>&#128228; Upload & Publish</h2>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">Pilih Konten untuk Upload</h3>
+                    <div class="form-group">
+                        <label>Konten</label>
+                        <select class="form-control" id="uploadContentSelect"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Platform Tujuan</label>
+                        <select class="form-control" id="uploadPlatformSelect">
+                            <option value="all">Semua Platform (YouTube + IG + FB)</option>
+                            <option value="youtube">YouTube saja</option>
+                            <option value="instagram">Instagram saja</option>
+                            <option value="facebook">Facebook saja</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success" onclick="uploadContent()">&#128640; Upload Sekarang</button>
+                </div>
+
+                <div class="card" id="uploadResultCard" style="display: none;">
+                    <h3 style="margin-bottom: 20px;">Hasil Upload</h3>
+                    <div id="uploadResults"></div>
+                </div>
+            </section>
+
+            <!-- Schedule Page -->
+            <section class="page-section" id="page-schedule">
+                <div class="page-header">
+                    <h2>&#128197; Jadwal Posting</h2>
+                    <button class="btn btn-primary" onclick="openScheduleModal()">&#10133; Tambah Jadwal</button>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Konten</th>
+                                    <th>Platform</th>
+                                    <th>Jadwal</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="schedulesTable">
+                                <tr><td colspan="5" class="empty-state"><p>Belum ada jadwal.</p></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Platforms Page -->
+            <section class="page-section" id="page-platforms">
+                <div class="page-header">
+                    <h2>&#128279; Koneksi Platform</h2>
+                </div>
+
+                <div class="platform-grid">
+                    <div class="platform-card">
+                        <div class="icon">&#128308;</div>
+                        <h4>YouTube</h4>
+                        <p>Upload Shorts & Video otomatis ke channel YouTube kamu</p>
+                        <div class="form-group">
+                            <label>Client ID</label>
+                            <input type="text" class="form-control" id="ytClientId" placeholder="Google API Client ID">
+                        </div>
+                        <div class="form-group">
+                            <label>Client Secret</label>
+                            <input type="password" class="form-control" id="ytClientSecret" placeholder="Google API Client Secret">
+                        </div>
+                        <button class="btn btn-primary" onclick="connectYouTube()">Hubungkan YouTube</button>
+                        <div class="status" id="ytStatus"></div>
+                    </div>
+
+                    <div class="platform-card">
+                        <div class="icon">&#128248;</div>
+                        <h4>Instagram</h4>
+                        <p>Post Reels & gambar otomatis ke Instagram Business</p>
+                        <div class="form-group">
+                            <label>Access Token</label>
+                            <input type="password" class="form-control" id="igAccessToken" placeholder="Instagram Graph API Token">
+                        </div>
+                        <div class="form-group">
+                            <label>Business Account ID</label>
+                            <input type="text" class="form-control" id="igAccountId" placeholder="Instagram Business Account ID">
+                        </div>
+                        <button class="btn btn-primary" onclick="connectInstagram()">Hubungkan Instagram</button>
+                        <div class="status" id="igStatus"></div>
+                    </div>
+
+                    <div class="platform-card">
+                        <div class="icon">&#128309;</div>
+                        <h4>Facebook</h4>
+                        <p>Post ke Facebook Page secara otomatis</p>
+                        <div class="form-group">
+                            <label>Page Access Token</label>
+                            <input type="password" class="form-control" id="fbPageToken" placeholder="Facebook Page Access Token">
+                        </div>
+                        <div class="form-group">
+                            <label>Page ID</label>
+                            <input type="text" class="form-control" id="fbPageId" placeholder="Facebook Page ID">
+                        </div>
+                        <button class="btn btn-primary" onclick="connectFacebook()">Hubungkan Facebook</button>
+                        <div class="status" id="fbStatus"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Templates Page -->
+            <section class="page-section" id="page-templates">
+                <div class="page-header">
+                    <h2>&#128221; Template Generator</h2>
+                    <button class="btn btn-primary" onclick="openTemplateModal()">&#10133; Tambah Template</button>
+                </div>
+
+                <div class="card">
+                    <div id="templatesList"></div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Create Content Modal -->
+    <div class="modal-overlay" id="createModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>&#10133; Tambah Konten Baru</h3>
+                <button class="modal-close" onclick="closeModal('createModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Judul</label>
+                <input type="text" class="form-control" id="createTitle" placeholder="Judul konten...">
+            </div>
+            <div class="form-group">
+                <label>Deskripsi</label>
+                <textarea class="form-control" id="createDesc" placeholder="Deskripsi konten..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Caption</label>
+                <textarea class="form-control" id="createCaption" placeholder="Caption untuk posting..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Hashtags</label>
+                <input type="text" class="form-control" id="createHashtags" placeholder="#viral #fyp #trending">
+            </div>
+            <div class="form-group">
+                <label>Script</label>
+                <textarea class="form-control" id="createScript" placeholder="Script narasi video..." style="min-height: 120px;"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Platform</label>
+                    <select class="form-control" id="createPlatform">
+                        <option value="all">Semua Platform</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="facebook">Facebook</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tipe</label>
+                    <select class="form-control" id="createType">
+                        <option value="video">Video</option>
+                        <option value="image">Gambar</option>
+                        <option value="text">Teks</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="createContent()">&#128190; Simpan Konten</button>
+        </div>
+    </div>
+
+    <!-- Schedule Modal -->
+    <div class="modal-overlay" id="scheduleModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>&#128197; Tambah Jadwal</h3>
+                <button class="modal-close" onclick="closeModal('scheduleModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Konten</label>
+                <select class="form-control" id="scheduleContentSelect"></select>
+            </div>
+            <div class="form-group">
+                <label>Platform</label>
+                <select class="form-control" id="schedulePlatform">
+                    <option value="youtube">YouTube</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="facebook">Facebook</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Tanggal & Waktu</label>
+                <input type="datetime-local" class="form-control" id="scheduleDateTime">
+            </div>
+            <button class="btn btn-primary" onclick="createSchedule()">&#128197; Jadwalkan</button>
+        </div>
+    </div>
+
+    <!-- Template Modal -->
+    <div class="modal-overlay" id="templateModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>&#128221; Tambah Template</h3>
+                <button class="modal-close" onclick="closeModal('templateModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Nama Template</label>
+                <input type="text" class="form-control" id="templateName" placeholder="Nama template...">
+            </div>
+            <div class="form-group">
+                <label>Niche</label>
+                <input type="text" class="form-control" id="templateNiche" placeholder="Niche / topik...">
+            </div>
+            <div class="form-group">
+                <label>Prompt Template</label>
+                <textarea class="form-control" id="templatePrompt" placeholder="Prompt untuk generate konten..." style="min-height: 150px;"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Platform</label>
+                    <select class="form-control" id="templatePlatform">
+                        <option value="all">Semua</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="facebook">Facebook</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tipe</label>
+                    <select class="form-control" id="templateType">
+                        <option value="short">Short</option>
+                        <option value="long">Long</option>
+                        <option value="post">Post</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="createTemplate()">&#128190; Simpan Template</button>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
