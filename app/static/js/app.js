@@ -14,6 +14,7 @@ function showPage(page) {
     if (page === 'upload') loadUploadOptions();
     if (page === 'templates') loadTemplates();
     if (page === 'platforms') loadPlatformStatus();
+    if (page === 'autopilot') loadAutopilotSettings();
 
     if (window.innerWidth <= 768) {
         document.getElementById('sidebar').classList.remove('open');
@@ -594,6 +595,135 @@ async function deleteTemplate(id) {
         loadTemplates();
     } catch (e) {
         showToast('Gagal menghapus template', 'error');
+    }
+}
+
+// ---- Autopilot ----
+async function loadAutopilotSettings() {
+    try {
+        const data = await apiCall('/api/autopilot/settings');
+        document.getElementById('apNiche').value = data.niche || '';
+        document.getElementById('apPlatforms').value = data.platforms || 'all';
+        document.getElementById('apFrequency').value = data.post_frequency || 1;
+        document.getElementById('apPostTime').value = data.post_time || '09:00';
+        document.getElementById('apLanguage').value = data.language || 'id';
+        document.getElementById('apTone').value = data.tone || 'engaging';
+        document.getElementById('apContentType').value = data.content_type || 'short';
+        document.getElementById('apAutoImage').checked = data.auto_image === 1;
+        document.getElementById('apAutoUpload').checked = data.auto_upload === 1;
+
+        const toggle = document.getElementById('autopilotToggle');
+        toggle.checked = data.is_active === 1;
+        updateAutopilotUI(data.is_active === 1);
+
+        document.getElementById('ap-total-generated').textContent = data.total_generated || 0;
+        document.getElementById('ap-total-posted').textContent = data.total_posted || 0;
+        document.getElementById('ap-last-run').textContent = data.last_run ? formatDate(data.last_run) : '-';
+
+        loadAutopilotLog();
+    } catch (e) {
+        // Ignore
+    }
+}
+
+function updateAutopilotUI(active) {
+    const statusText = document.getElementById('autopilotStatusText');
+    const sw = document.getElementById('autopilotSwitch');
+    if (active) {
+        statusText.textContent = 'ON';
+        statusText.style.color = '#2ecc71';
+        sw.style.background = '#2ecc71';
+    } else {
+        statusText.textContent = 'OFF';
+        statusText.style.color = '#e74c3c';
+        sw.style.background = '#333';
+    }
+}
+
+async function toggleAutopilot() {
+    const isActive = document.getElementById('autopilotToggle').checked ? 1 : 0;
+    const niche = document.getElementById('apNiche').value;
+
+    if (isActive && !niche) {
+        document.getElementById('autopilotToggle').checked = false;
+        showToast('Isi niche/topik terlebih dahulu!', 'error');
+        return;
+    }
+
+    try {
+        await apiCall('/api/autopilot/settings', 'POST', { is_active: isActive });
+        updateAutopilotUI(isActive === 1);
+        showToast(isActive ? 'Autopilot AKTIF! Konten akan digenerate otomatis.' : 'Autopilot dimatikan.', isActive ? 'success' : 'info');
+    } catch (e) {
+        showToast('Gagal mengubah status autopilot', 'error');
+    }
+}
+
+async function saveAutopilotSettings() {
+    const data = {
+        niche: document.getElementById('apNiche').value,
+        platforms: document.getElementById('apPlatforms').value,
+        post_frequency: parseInt(document.getElementById('apFrequency').value),
+        post_time: document.getElementById('apPostTime').value,
+        language: document.getElementById('apLanguage').value,
+        tone: document.getElementById('apTone').value,
+        content_type: document.getElementById('apContentType').value,
+        auto_image: document.getElementById('apAutoImage').checked ? 1 : 0,
+        auto_upload: document.getElementById('apAutoUpload').checked ? 1 : 0,
+    };
+
+    if (!data.niche) { showToast('Isi niche/topik utama!', 'error'); return; }
+
+    try {
+        await apiCall('/api/autopilot/settings', 'POST', data);
+        showToast('Pengaturan autopilot tersimpan!', 'success');
+    } catch (e) {
+        showToast('Gagal menyimpan pengaturan', 'error');
+    }
+}
+
+async function runAutopilotNow() {
+    const niche = document.getElementById('apNiche').value;
+    if (!niche) { showToast('Isi niche/topik terlebih dahulu!', 'error'); return; }
+
+    await saveAutopilotSettings();
+
+    showLoading('Menjalankan autopilot... AI sedang generate konten...');
+    try {
+        const result = await apiCall('/api/autopilot/run', 'POST');
+        hideLoading();
+        if (result.status === 'ok') {
+            const r = result.results;
+            showToast(`Berhasil! ${r.generated} konten di-generate, ${r.images} gambar, ${r.uploaded} di-upload.`, 'success');
+        } else {
+            showToast(result.message || 'Ada masalah saat menjalankan autopilot', 'error');
+        }
+        loadAutopilotSettings();
+    } catch (e) {
+        hideLoading();
+        showToast('Gagal menjalankan autopilot', 'error');
+    }
+}
+
+async function loadAutopilotLog() {
+    try {
+        const result = await apiCall('/api/autopilot/log');
+        const container = document.getElementById('autopilotLog');
+        if (result.items && result.items.length > 0) {
+            container.innerHTML = result.items.map(log => {
+                const icon = log.event_type === 'error' ? '&#10060;' : log.event_type === 'uploaded' ? '&#128228;' : '&#9889;';
+                const color = log.event_type === 'error' ? '#e74c3c' : log.event_type === 'uploaded' ? '#2ecc71' : '#f39c12';
+                return `<div style="padding:8px 12px;border-left:3px solid ${color};margin-bottom:8px;background:rgba(255,255,255,0.03);border-radius:0 6px 6px 0;">
+                    <span>${icon}</span>
+                    <span style="opacity:0.6;font-size:12px;">${formatDate(log.created_at)}</span>
+                    <span style="margin-left:8px;">${escapeHtml(log.message)}</span>
+                </div>`;
+            }).join('');
+        } else {
+            container.innerHTML = '<p style="opacity: 0.5;">Belum ada aktivitas.</p>';
+        }
+    } catch (e) {
+        // Ignore
     }
 }
 

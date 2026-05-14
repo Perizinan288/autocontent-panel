@@ -78,5 +78,30 @@ async def init_db():
                 content_type TEXT DEFAULT 'short',
                 created_at TEXT DEFAULT (datetime('now'))
             );
+
+            CREATE TABLE IF NOT EXISTS autopilot_settings (
+                id INTEGER PRIMARY KEY,
+                is_active INTEGER DEFAULT 0,
+                niche TEXT DEFAULT '',
+                platforms TEXT DEFAULT 'all',
+                post_frequency INTEGER DEFAULT 1,
+                post_time TEXT DEFAULT '09:00',
+                language TEXT DEFAULT 'id',
+                tone TEXT DEFAULT 'engaging',
+                content_type TEXT DEFAULT 'short',
+                auto_image INTEGER DEFAULT 1,
+                auto_upload INTEGER DEFAULT 1,
+                last_run TEXT DEFAULT NULL,
+                total_generated INTEGER DEFAULT 0,
+                total_posted INTEGER DEFAULT 0
+            );
+
+            CREATE TABLE IF NOT EXISTS autopilot_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                event_type TEXT DEFAULT 'info',
+                message TEXT DEFAULT '',
+                niche TEXT DEFAULT '',
+                created_at TEXT DEFAULT (datetime('now'))
+            );
         """)
         await db.commit()

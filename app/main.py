@@ -10,7 +10,9 @@ from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
 from app.database import init_db
+from app.routers import autopilot as autopilot_router
 from app.routers import clip, content, generate, schedule, upload
+from app.services.autopilot import check_and_run_autopilot
 from app.services.scheduler import check_and_run_schedules
 
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +29,7 @@ async def lifespan(app: FastAPI):
 
     if settings.SCHEDULER_ENABLED:
         scheduler.add_job(check_and_run_schedules, "interval", minutes=1, id="upload_scheduler")
+        scheduler.add_job(check_and_run_autopilot, "interval", minutes=1, id="autopilot_scheduler")
         scheduler.start()
         logger.info("Scheduler started")
 
@@ -39,7 +42,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description="Panel otomasi konten untuk YouTube, Instagram, dan Facebook",
+    description="Panel otomasi konten untuk YouTube, Instagram, Facebook, dan TikTok",
     lifespan=lifespan,
 )
 
@@ -56,6 +59,7 @@ app.include_router(generate.router)
 app.include_router(clip.router)
 app.include_router(upload.router)
 app.include_router(schedule.router)
+app.include_router(autopilot_router.router)
 
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 app.mount("/static", StaticFiles(directory=static_dir), name="static")

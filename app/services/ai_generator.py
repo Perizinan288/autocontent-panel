@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Dict, List
 
 import httpx
 
@@ -11,6 +12,7 @@ PLATFORM_SPECS = {
     "youtube": {"max_title": 100, "max_desc": 5000, "hashtag_count": 15, "format": "YouTube Shorts / Video"},
     "instagram": {"max_title": 0, "max_desc": 2200, "hashtag_count": 30, "format": "Reels / Post"},
     "facebook": {"max_title": 0, "max_desc": 63206, "hashtag_count": 10, "format": "Reels / Post"},
+    "tiktok": {"max_title": 150, "max_desc": 2200, "hashtag_count": 10, "format": "TikTok Video"},
     "all": {"max_title": 100, "max_desc": 2200, "hashtag_count": 10, "format": "Short-form Video"},
 }
 
@@ -22,7 +24,7 @@ async def generate_content(
     language: str = "id",
     tone: str = "engaging",
     count: int = 1,
-) -> list[dict]:
+) -> List[Dict]:
     if not settings.OPENAI_API_KEY:
         return _generate_fallback(niche, platform, content_type, language, count)
 
@@ -87,7 +89,7 @@ Pastikan konten yang dihasilkan:
         return _generate_fallback(niche, platform, content_type, language, count)
 
 
-def _generate_fallback(niche: str, platform: str, content_type: str, language: str, count: int) -> list[dict]:
+def _generate_fallback(niche: str, platform: str, content_type: str, language: str, count: int) -> List[Dict]:
     templates = [
         {
             "title": f"5 Fakta {niche} yang Jarang Orang Tahu!",
@@ -138,7 +140,7 @@ def _generate_fallback(niche: str, platform: str, content_type: str, language: s
     return templates[:count]
 
 
-async def generate_hashtags(niche: str, platform: str = "all", count: int = 15) -> list[str]:
+async def generate_hashtags(niche: str, platform: str = "all", count: int = 15) -> List[str]:
     base_tags = [
         f"#{niche.replace(' ', '').lower()}",
         "#viral",

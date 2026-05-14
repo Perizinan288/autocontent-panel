@@ -51,6 +51,13 @@
             </div>
 
             <div class="nav-section">
+                <div class="nav-section-title">Autopilot</div>
+                <a class="nav-item" onclick="showPage('autopilot')" data-page="autopilot">
+                    <span class="icon">&#129302;</span> Autopilot Mode
+                </a>
+            </div>
+
+            <div class="nav-section">
                 <div class="nav-section-title">Settings</div>
                 <a class="nav-item" onclick="showPage('platforms')" data-page="platforms">
                     <span class="icon">&#128279;</span> Koneksi Platform
@@ -414,6 +421,142 @@
                         </div>
                         <button class="btn btn-primary" onclick="connectTikTok()">Hubungkan TikTok</button>
                         <div class="status" id="ttStatus"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Autopilot Page -->
+            <section class="page-section" id="page-autopilot">
+                <div class="page-header">
+                    <h2>&#129302; Autopilot Mode</h2>
+                </div>
+
+                <div class="card" style="border: 2px solid #e94560; position: relative;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin: 0; color: #e94560;">&#9889; Full Autopilot</h3>
+                            <p style="margin: 5px 0 0; opacity: 0.7;">AI generate konten + gambar + upload otomatis setiap hari</p>
+                        </div>
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <span id="autopilotStatusText" style="font-weight: bold;">OFF</span>
+                            <div style="position:relative;width:50px;height:26px;">
+                                <input type="checkbox" id="autopilotToggle" onchange="toggleAutopilot()" style="opacity:0;width:0;height:0;">
+                                <span id="autopilotSwitch" onclick="document.getElementById('autopilotToggle').click()" style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#333;border-radius:26px;transition:.3s;"></span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Niche / Topik Utama</label>
+                            <input type="text" class="form-control" id="apNiche" placeholder="Contoh: tips bisnis online, masak, gaming...">
+                        </div>
+                        <div class="form-group">
+                            <label>Platform Tujuan</label>
+                            <select class="form-control" id="apPlatforms">
+                                <option value="all">Semua Platform</option>
+                                <option value="youtube">YouTube saja</option>
+                                <option value="instagram">Instagram saja</option>
+                                <option value="facebook">Facebook saja</option>
+                                <option value="tiktok">TikTok saja</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Jumlah Konten per Hari</label>
+                            <select class="form-control" id="apFrequency">
+                                <option value="1">1 konten/hari</option>
+                                <option value="2">2 konten/hari</option>
+                                <option value="3">3 konten/hari</option>
+                                <option value="5">5 konten/hari</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Jam Posting</label>
+                            <input type="time" class="form-control" id="apPostTime" value="09:00">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Bahasa</label>
+                            <select class="form-control" id="apLanguage">
+                                <option value="id">Bahasa Indonesia</option>
+                                <option value="en">English</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tone</label>
+                            <select class="form-control" id="apTone">
+                                <option value="engaging">Engaging & Fun</option>
+                                <option value="educational">Edukatif</option>
+                                <option value="motivational">Motivasi</option>
+                                <option value="humorous">Humor</option>
+                                <option value="professional">Profesional</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tipe Konten</label>
+                            <select class="form-control" id="apContentType">
+                                <option value="short">Short / Reels</option>
+                                <option value="long">Video Panjang</option>
+                                <option value="post">Post / Gambar</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 8px; justify-content: flex-end;">
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                                <input type="checkbox" id="apAutoImage" checked> Auto Generate Gambar
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                                <input type="checkbox" id="apAutoUpload" checked> Auto Upload ke Platform
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="btn btn-primary" onclick="saveAutopilotSettings()">&#128190; Simpan Pengaturan</button>
+                        <button class="btn btn-success" onclick="runAutopilotNow()">&#9889; Jalankan Sekarang</button>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="margin: 0;">&#128202; Statistik Autopilot</h3>
+                    </div>
+                    <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="stat-card">
+                            <div class="stat-icon green">&#128172;</div>
+                            <div class="stat-info">
+                                <h3 id="ap-total-generated">0</h3>
+                                <p>Total Generated</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon blue">&#128228;</div>
+                            <div class="stat-info">
+                                <h3 id="ap-total-posted">0</h3>
+                                <p>Total Posted</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon yellow">&#128337;</div>
+                            <div class="stat-info">
+                                <h3 id="ap-last-run">-</h3>
+                                <p>Terakhir Jalan</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <h3 style="margin-bottom: 16px;">&#128220; Log Aktivitas</h3>
+                    <div id="autopilotLog" style="max-height: 300px; overflow-y: auto;">
+                        <p style="opacity: 0.5;">Belum ada aktivitas.</p>
                     </div>
                 </div>
             </section>

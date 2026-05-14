@@ -5,7 +5,7 @@ from datetime import datetime
 import aiosqlite
 
 from app.database import DB_PATH
-from app.services import facebook, instagram, youtube
+from app.services import facebook, instagram, tiktok, youtube
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +97,14 @@ async def process_scheduled_upload(schedule_id: int):
                         page_id=page_id,
                         message=full_caption,
                     )
+            elif platform == "tiktok":
+                access_token = creds.get("access_token", "")
+                result = await tiktok.upload_video(
+                    access_token=access_token,
+                    file_path=schedule["file_path"],
+                    title=schedule["title"],
+                    description=full_caption,
+                )
 
             if result.get("error"):
                 await db.execute(
